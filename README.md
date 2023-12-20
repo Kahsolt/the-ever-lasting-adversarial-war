@@ -11,8 +11,9 @@ Who will win? 🤔
 
 🎉🎉 恭喜你找到了一种蜡笔画滤镜的(极其不省钱的)实现方式 😂👉🤡 
 
-
-![](img/war.mp4)
+| original | step 20 | step 50 | step 100 |
+| :-: | :-: | :-: | :-: |
+| ![](img/raw.png) | ![](img/step-20.png) | ![](img/step-50.png) | ![](img/step-100.png) |
 
 
 ### Battle Start!!

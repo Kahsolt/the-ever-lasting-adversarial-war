@@ -43,14 +43,14 @@ def get_quality_metrics(im_raw:npimg, im_adv:npimg, model:Module=None) -> Dict[s
   }
 
   if model is not None:
-    with torch.inference_mode():
-      X  = ndarray_to_tensor(im_raw)
-      AX = ndarray_to_tensor(im_adv)
+    with torch.no_grad():
+      X  = ndarray_to_tensor(im_raw.copy())
+      AX = ndarray_to_tensor(im_adv.copy())
       pred_raw = model(X)
       pred_adv = model(AX)
       diff = torch.abs(pred_adv - pred_raw)
-      metrics['fm_L1']   = diff.mean()
-      metrics['fm_Linf'] = diff.max()
+      metrics['fm_L1']   = diff.mean().item()
+      metrics['fm_Linf'] = diff.max ().item()
 
   return metrics
 
@@ -101,7 +101,7 @@ def run(args:Namespace):
   model = model.eval().to(device)
 
   try:
-    for step in range(step+1, 10000):
+    for step in range(step+1, 1000):
       print(f'>> [step {step}] ', end='')
 
       ts = time()
@@ -113,7 +113,7 @@ def run(args:Namespace):
         im_cur = apply_adv_clean(im_cur)
       ts = time() - ts
 
-      metrics = get_quality_metrics(im_ref, im_cur)
+      metrics = get_quality_metrics(im_ref, im_cur, model)
       metrics['ts'] = ts
       db[step] = metrics
       print(metrics)

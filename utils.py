@@ -53,6 +53,7 @@ def im_f32_to_u8(im:npimg) -> npimg:
   return np.asarray(im * 255, dtype=np.uint8)
 
 def im_valid(im:npimg) -> npimg:
+  assert im.dtype == np.float32
   return im_u8_to_f32(im_f32_to_u8(im.clip(0.0, 1.0)))
 
 def to_gray(im:npimg) -> npimg:
@@ -62,6 +63,16 @@ def rgb2bgr(im:npimg) -> npimg:
   return im[:, :, ::-1]
 
 bgr2rgb = rgb2bgr
+
+def color_fix(im:npimg, im_ref:npimg) -> npimg:
+  assert im.dtype == im_ref.dtype == np.float32
+  tgt_avg = np.mean(im_ref, axis=-1, keepdims=True)
+  tgt_std = np.std(im_ref, axis=-1, keepdims=True)
+  src_avg = np.mean(im, axis=-1, keepdims=True)
+  src_std = np.std(im, axis=-1, keepdims=True)
+  im_norm = (im - src_avg) / src_std
+  im_shift = im_norm * tgt_std + tgt_avg
+  return im_valid(im_shift)
 
 
 def load_json(fp:Path, defval=dict) -> Any:

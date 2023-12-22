@@ -65,14 +65,35 @@ def rgb2bgr(im:npimg) -> npimg:
 bgr2rgb = rgb2bgr
 
 def color_fix(im:npimg, im_ref:npimg) -> npimg:
-  assert im.dtype == im_ref.dtype == np.float32
+  assert im.dtype == im_ref.dtype == np.uint8
+  im = im_u8_to_f32(im)
+  im_ref = im_u8_to_f32(im_ref)
   tgt_avg = np.mean(im_ref, axis=-1, keepdims=True)
   tgt_std = np.std(im_ref, axis=-1, keepdims=True)
   src_avg = np.mean(im, axis=-1, keepdims=True)
   src_std = np.std(im, axis=-1, keepdims=True)
   im_norm = (im - src_avg) / src_std
   im_shift = im_norm * tgt_std + tgt_avg
-  return im_valid(im_shift)
+  return im_f32_to_u8(im_valid(im_shift))
+
+# https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/modules/processing.py
+def color_correction(im:npimg, im_ref:npimg) -> npimg:
+  import cv2
+  from skimage import exposure
+  from blendmodes.blend import blendLayers, BlendType
+
+  assert im.dtype == im_ref.dtype == np.uint8
+  img = npimg_to_pil(im)
+  img_ref = npimg_to_pil(im_ref)
+
+  img_fix = Image.fromarray(cv2.cvtColor(exposure.match_histograms(
+    cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2LAB),
+    cv2.cvtColor(np.asarray(img_ref), cv2.COLOR_RGB2LAB),
+    channel_axis=2
+  ), cv2.COLOR_LAB2RGB).astype(np.uint8))
+  img_fix = blendLayers(img_ref, img_fix, BlendType.LUMINOSITY)
+  img_fix = img_fix.convert('RGB')
+  return pil_to_npimg(img_fix)  # uint8
 
 
 def load_json(fp:Path, defval=dict) -> Any:

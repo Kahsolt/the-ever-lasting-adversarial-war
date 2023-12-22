@@ -83,7 +83,6 @@ def run(args:Namespace):
   if not init_fp.exists():
     copy2(args.file, init_fp)
   im_ref = load_im(init_fp)
-  im_ref_f32 = im_u8_to_f32(im_ref)
 
   ''' record '''
   db: Dict[int, Any] = load_json(log_fp)
@@ -114,7 +113,10 @@ def run(args:Namespace):
         im_cur = apply_adv_clean(im_cur)
       ts = time() - ts
 
-      im_cur = im_f32_to_u8(color_fix(im_u8_to_f32(im_cur), im_ref_f32))
+      if 'simple method':
+        im_cur = color_fix(im_cur, im_ref)
+      else:
+        im_cur = color_correction(im_cur, im_ref)
 
       metrics = get_quality_metrics(im_ref, im_cur, model)
       metrics['ts'] = ts

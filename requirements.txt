@@ -1,3 +1,5 @@
 scipy
 scikit-image
+opencv-python
 opencv-contrib-python
+blendmodes

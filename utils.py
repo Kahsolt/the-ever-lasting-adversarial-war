@@ -68,11 +68,11 @@ def color_fix(im:npimg, im_ref:npimg) -> npimg:
   assert im.dtype == im_ref.dtype == np.uint8
   im = im_u8_to_f32(im)
   im_ref = im_u8_to_f32(im_ref)
-  tgt_avg = np.mean(im_ref, axis=-1, keepdims=True)
-  tgt_std = np.std(im_ref, axis=-1, keepdims=True)
-  src_avg = np.mean(im, axis=-1, keepdims=True)
-  src_std = np.std(im, axis=-1, keepdims=True)
+  src_avg = np.mean(im, axis=(0, 1), keepdims=True)
+  src_std = np.std(im, axis=(0, 1), keepdims=True)
   im_norm = (im - src_avg) / src_std
+  tgt_avg = np.mean(im_ref, axis=(0, 1), keepdims=True)
+  tgt_std = np.std(im_ref, axis=(0, 1), keepdims=True)
   im_shift = im_norm * tgt_std + tgt_avg
   return im_f32_to_u8(im_valid(im_shift))
 

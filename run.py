@@ -113,9 +113,9 @@ def run(args:Namespace):
         im_cur = apply_adv_clean(im_cur)
       ts = time() - ts
 
-      if 'simple method':
+      if args.color_fix == 'simple':
         im_cur = color_fix(im_cur, im_ref)
-      else:
+      elif args.color_fix == 'sd-webui':
         im_cur = color_correction(im_cur, im_ref)
 
       metrics = get_quality_metrics(im_ref, im_cur, model)
@@ -138,11 +138,12 @@ if __name__ == '__main__':
   parser = ArgumentParser()
   parser.add_argument('-F', '--file', default='img/raw.png', help='image file to attack/defend')
   parser.add_argument('-M', '--model', default='resnet50', choices=MODELS, help='surrogate model for attack')
-  parser.add_argument('--eps',   default=16/255, type=float, help='PGD attack threshold')
-  parser.add_argument('--alpha', default=1/255,  type=float, help='PGD attack step size')
-  parser.add_argument('--steps', default=40,     type=int,   help='PGD attack step count')
+  parser.add_argument('--eps',   default=8/255, type=float, help='PGD attack threshold')
+  parser.add_argument('--alpha', default=1/255, type=float, help='PGD attack step size')
+  parser.add_argument('--steps', default=10,    type=int,   help='PGD attack step count')
   parser.add_argument('-R', '--resume', type=int, help='resume from given round of beat')
   parser.add_argument('-N', '--name', default='default', help='experiment name')
+  parser.add_argument('--color_fix', default='shift', choices=['none', 'simple', 'sd-webui'])
   args = parser.parse_args()
 
   run(args)

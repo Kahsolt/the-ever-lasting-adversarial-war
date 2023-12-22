@@ -20,7 +20,7 @@ Who will win? 🤔
 
 - install `torch` and `torchvision` follow [PyTorch Install Guide](https://pytorch.org/get-started/locally/)
 - `pip install -r requirements.txt`
-- `python run.py`
+- `python run.py --color_fix simple`
 - `render_video.cmd log\default`
 
 

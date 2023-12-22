@@ -66,9 +66,13 @@ def apply_pgd(args:NameError, model:Module, im:npimg) -> npimg:
   return im_f32_to_u8(im)
 
 
-def apply_adv_clean(im:npimg) -> npimg:
+def apply_adv_clean(args:Namespace, im:npimg) -> npimg:
   im = rgb2bgr(im)
-  im = adv_cleaner(im)
+  if args.cleaner == 'fixed':
+    im = adv_cleaner(im, args.b_iter, args.g_iter)
+  elif args.cleaner == 'dynamic':
+    im = dynamic_clean_adverse(im, b_iters=args.b_iter, g_iters=args.g_iter)
+  else: raise
   im = bgr2rgb(im)
   return im
 
@@ -110,7 +114,7 @@ def run(args:Namespace):
         im_cur = apply_pgd(args, model, im_cur)
       else:               # even step, apply defense
         print('defend!!')
-        im_cur = apply_adv_clean(im_cur)
+        im_cur = apply_adv_clean(args, im_cur)
       ts = time() - ts
 
       if args.color_fix == 'simple':
@@ -137,13 +141,19 @@ def run(args:Namespace):
 if __name__ == '__main__':
   parser = ArgumentParser()
   parser.add_argument('-F', '--file', default='img/raw.png', help='image file to attack/defend')
+  parser.add_argument('--color_fix', default='shift', choices=['none', 'simple', 'sd-webui'])
+  # PGD attack
   parser.add_argument('-M', '--model', default='resnet50', choices=MODELS, help='surrogate model for attack')
   parser.add_argument('--eps',   default=8/255, type=float, help='PGD attack threshold')
   parser.add_argument('--alpha', default=1/255, type=float, help='PGD attack step size')
   parser.add_argument('--steps', default=10,    type=int,   help='PGD attack step count')
+  # AdvClean defense
+  parser.add_argument('-C', '--cleaner', default='fixed', choices=['fixed', 'dynamic'], help='AdvClean version')
+  parser.add_argument('--b_iter', default=64, type=int, help='AdvClean defense bilateralFilter steps')
+  parser.add_argument('--g_iter', default=2,  type=int, help='AdvClean defense guidedFilter steps')
+  # misc
   parser.add_argument('-R', '--resume', type=int, help='resume from given round of beat')
   parser.add_argument('-N', '--name', default='default', help='experiment name')
-  parser.add_argument('--color_fix', default='shift', choices=['none', 'simple', 'sd-webui'])
   args = parser.parse_args()
 
   run(args)

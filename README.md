@@ -27,6 +27,7 @@ Who will win? 🤔
 ### references
 
 - AdverseCleaner: [https://github.com/lllyasviel/AdverseCleaner](https://github.com/lllyasviel/AdverseCleaner)
+- mist-fucker: [https://huggingface.co/spaces/mf666/mist-fucker](https://huggingface.co/spaces/mf666/mist-fucker)
 - image source: [https://twitter.com/aifurryart/status/1636208457715187714](https://twitter.com/aifurryart/status/1636208457715187714)
 
 ----

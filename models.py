@@ -96,8 +96,9 @@ def hijack_vit_forward(self:VisionTransformer, x:Tensor) -> Tensor:
   return x
 
 
-def get_model(name:str) -> Module:
+def get_model(name:str, hijack:bool=True) -> Module:
   model: Module = getattr(M, name)(pretrained=True)
+  if not hijack: return model
 
   if name.startswith('resnet'):
     model.forward = lambda x: hijack_resnet_forward(model, x)
